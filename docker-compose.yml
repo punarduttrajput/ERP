@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-erp_dev}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: deploy/backend/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Write: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-erp_dev};User=root;Password=${MYSQL_ROOT_PASSWORD:-rootpassword};"
+      ConnectionStrings__Read: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-erp_dev};User=root;Password=${MYSQL_ROOT_PASSWORD:-rootpassword};"
+      Redis__ConnectionString: "redis:6379"
+      Jwt__Key: "${JWT_KEY:-dev-secret-key-min-32-chars-long!}"
+      Jwt__Issuer: "erp-platform"
+      Jwt__Audience: "erp-clients"
+      Encryption__Key: "${ENCRYPTION_KEY:-}"
+    ports:
+      - "5000:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:

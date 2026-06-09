@@ -1,0 +1,13 @@
+apiVersion: v2
+name: erp-backend
+description: University ERP SaaS Platform — ASP.NET Core 8 API
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - erp
+  - university
+  - saas
+maintainers:
+  - name: Plasmacomp
+    email: dev@plasmacomp.com

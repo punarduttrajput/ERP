@@ -1,0 +1,69 @@
+# PR Validation Pipeline — runs on every pull request to main
+# Faster than main pipeline: no Docker build, no deploy, no ZAP
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - "**/*.md"
+      - "wiki/**"
+      - "deploy/monitoring/**"
+
+variables:
+  dotnetVersion: "8.0.x"
+  buildConfiguration: "Release"
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+  - stage: PRValidation
+    displayName: "PR Validation"
+    jobs:
+      - job: BuildTestArch
+        displayName: "Build + Unit Tests + Arch Tests"
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              version: $(dotnetVersion)
+
+          - task: DotNetCoreCLI@2
+            displayName: "Restore"
+            inputs:
+              command: restore
+              projects: "ERP.sln"
+
+          - task: DotNetCoreCLI@2
+            displayName: "Build"
+            inputs:
+              command: build
+              projects: "ERP.sln"
+              arguments: "--configuration $(buildConfiguration) --no-restore"
+
+          - task: DotNetCoreCLI@2
+            displayName: "Unit tests"
+            inputs:
+              command: test
+              projects: "tests/ERP.UnitTests/ERP.UnitTests.csproj"
+              arguments: "--configuration $(buildConfiguration) --no-build --logger trx --results-directory $(Agent.TempDirectory)/UnitResults"
+              publishTestResults: false
+
+          - task: DotNetCoreCLI@2
+            displayName: "Architecture tests"
+            inputs:
+              command: test
+              projects: "tests/ERP.ArchTests/ERP.ArchTests.csproj"
+              arguments: "--configuration $(buildConfiguration) --no-build --logger trx --results-directory $(Agent.TempDirectory)/ArchResults"
+              publishTestResults: false
+
+          - task: PublishTestResults@2
+            displayName: "Publish all test results"
+            condition: always()
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: "$(Agent.TempDirectory)/**/*.trx"
+              testRunTitle: "PR — $(System.PullRequest.SourceBranch)"

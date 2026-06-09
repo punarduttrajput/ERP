@@ -1,0 +1,472 @@
+# University ERP SaaS Platform — CI/CD Pipeline
+# Triggers on every commit to main; PR validation uses azure-pipelines.pr.yml
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - "**/*.md"
+      - "deploy/monitoring/**"
+      - "wiki/**"
+
+pr: none  # PR builds handled by azure-pipelines.pr.yml
+
+variables:
+  - group: erp-platform-secrets      # Azure DevOps variable group (keyed secrets)
+  - name: dotnetVersion
+    value: "8.0.x"
+  - name: imageRegistry
+    value: "plasmacompacr.azurecr.io"
+  - name: backendImageName
+    value: "erp-backend"
+  - name: frontendImageName
+    value: "erp-frontend"
+  - name: stagingNamespace
+    value: "erp-staging"
+  - name: productionNamespace
+    value: "erp-platform"
+  - name: helmReleaseName
+    value: "erp-backend"
+  - name: buildConfiguration
+    value: "Release"
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+
+  # ─────────────────────────────────────────────────────────────────
+  # STAGE 1: Build & Unit Tests
+  # ─────────────────────────────────────────────────────────────────
+  - stage: Build
+    displayName: "Build & Unit Tests"
+    jobs:
+      - job: BuildAndTest
+        displayName: "Build Solution + Run Unit Tests"
+        steps:
+          - task: UseDotNet@2
+            displayName: "Use .NET 8"
+            inputs:
+              version: $(dotnetVersion)
+              performMultiLevelLookup: true
+
+          - task: DotNetCoreCLI@2
+            displayName: "Restore packages"
+            inputs:
+              command: restore
+              projects: "ERP.sln"
+              feedsToUse: select
+
+          - task: DotNetCoreCLI@2
+            displayName: "Build solution"
+            inputs:
+              command: build
+              projects: "ERP.sln"
+              arguments: "--configuration $(buildConfiguration) --no-restore"
+
+          - task: DotNetCoreCLI@2
+            displayName: "Run unit tests"
+            inputs:
+              command: test
+              projects: "tests/ERP.UnitTests/ERP.UnitTests.csproj"
+              arguments: >
+                --configuration $(buildConfiguration)
+                --no-build
+                --logger trx
+                --results-directory $(Agent.TempDirectory)/TestResults
+                /p:CollectCoverage=true
+                /p:CoverletOutputFormat=cobertura
+                /p:CoverletOutput=$(Agent.TempDirectory)/coverage/
+              publishTestResults: false
+
+          - task: PublishTestResults@2
+            displayName: "Publish unit test results"
+            condition: always()
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: "$(Agent.TempDirectory)/TestResults/*.trx"
+              testRunTitle: "Unit Tests"
+
+          - task: PublishCodeCoverageResults@2
+            displayName: "Publish code coverage"
+            condition: always()
+            inputs:
+              summaryFileLocation: "$(Agent.TempDirectory)/coverage/coverage.cobertura.xml"
+
+  # ─────────────────────────────────────────────────────────────────
+  # STAGE 2: Architecture Tests
+  # ─────────────────────────────────────────────────────────────────
+  - stage: ArchTests
+    displayName: "Architecture Guard Tests"
+    dependsOn: Build
+    jobs:
+      - job: ArchitectureTests
+        displayName: "NetArchTest — Enforce Architecture Rules"
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              version: $(dotnetVersion)
+
+          - task: DotNetCoreCLI@2
+            displayName: "Restore"
+            inputs:
+              command: restore
+              projects: "tests/ERP.ArchTests/ERP.ArchTests.csproj"
+
+          - task: DotNetCoreCLI@2
+            displayName: "Build arch tests"
+            inputs:
+              command: build
+              projects: "tests/ERP.ArchTests/ERP.ArchTests.csproj"
+              arguments: "--configuration $(buildConfiguration) --no-restore"
+
+          - task: DotNetCoreCLI@2
+            displayName: "Run arch tests"
+            inputs:
+              command: test
+              projects: "tests/ERP.ArchTests/ERP.ArchTests.csproj"
+              arguments: "--configuration $(buildConfiguration) --no-build --logger trx --results-directory $(Agent.TempDirectory)/ArchTestResults"
+              publishTestResults: false
+
+          - task: PublishTestResults@2
+            displayName: "Publish arch test results"
+            condition: always()
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: "$(Agent.TempDirectory)/ArchTestResults/*.trx"
+              testRunTitle: "Architecture Tests"
+
+  # ─────────────────────────────────────────────────────────────────
+  # STAGE 3: Integration Tests (Testcontainers — real MySQL + Redis)
+  # ─────────────────────────────────────────────────────────────────
+  - stage: IntegrationTests
+    displayName: "Integration Tests (Testcontainers)"
+    dependsOn: ArchTests
+    jobs:
+      - job: IntegrationTests
+        displayName: "Integration Tests — MySQL + Redis containers"
+        # Testcontainers requires Docker-in-Docker
+        services:
+          docker: {}
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              version: $(dotnetVersion)
+
+          - bash: |
+              # Verify Docker is available for Testcontainers
+              docker info
+            displayName: "Verify Docker availability"
+
+          - task: DotNetCoreCLI@2
+            displayName: "Restore"
+            inputs:
+              command: restore
+              projects: "tests/ERP.IntegrationTests/ERP.IntegrationTests.csproj"
+
+          - task: DotNetCoreCLI@2
+            displayName: "Build integration tests"
+            inputs:
+              command: build
+              projects: "tests/ERP.IntegrationTests/ERP.IntegrationTests.csproj"
+              arguments: "--configuration $(buildConfiguration) --no-restore"
+
+          - task: DotNetCoreCLI@2
+            displayName: "Run integration tests"
+            timeoutInMinutes: 20
+            inputs:
+              command: test
+              projects: "tests/ERP.IntegrationTests/ERP.IntegrationTests.csproj"
+              arguments: >
+                --configuration $(buildConfiguration)
+                --no-build
+                --logger trx
+                --results-directory $(Agent.TempDirectory)/IntegrationResults
+              publishTestResults: false
+            env:
+              DOCKER_HOST: unix:///var/run/docker.sock
+
+          - task: PublishTestResults@2
+            displayName: "Publish integration test results"
+            condition: always()
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: "$(Agent.TempDirectory)/IntegrationResults/*.trx"
+              testRunTitle: "Integration Tests"
+
+  # ─────────────────────────────────────────────────────────────────
+  # STAGE 4: Docker Build + Push
+  # ─────────────────────────────────────────────────────────────────
+  - stage: Docker
+    displayName: "Docker Build & Push"
+    dependsOn: IntegrationTests
+    variables:
+      imageTag: "$(Build.BuildId)"
+    jobs:
+      - job: BuildAndPushImages
+        displayName: "Build and push Docker images to ACR"
+        steps:
+          - task: Docker@2
+            displayName: "Login to ACR"
+            inputs:
+              command: login
+              containerRegistry: "erp-acr-service-connection"
+
+          - task: Docker@2
+            displayName: "Build backend image"
+            inputs:
+              command: build
+              dockerfile: "deploy/backend/Dockerfile"
+              buildContext: "."
+              repository: "$(imageRegistry)/$(backendImageName)"
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: "Push backend image"
+            inputs:
+              command: push
+              repository: "$(imageRegistry)/$(backendImageName)"
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: "Build frontend image"
+            inputs:
+              command: build
+              dockerfile: "deploy/frontend/Dockerfile"
+              buildContext: "../erp-frontend"
+              repository: "$(imageRegistry)/$(frontendImageName)"
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: "Push frontend image"
+            inputs:
+              command: push
+              repository: "$(imageRegistry)/$(frontendImageName)"
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: "Logout from ACR"
+            inputs:
+              command: logout
+              containerRegistry: "erp-acr-service-connection"
+
+          # Save image tag as pipeline artifact for downstream stages
+          - bash: echo "$(imageTag)" > $(Build.ArtifactStagingDirectory)/image-tag.txt
+            displayName: "Save image tag"
+          - task: PublishPipelineArtifact@1
+            inputs:
+              artifactName: image-tag
+              targetPath: $(Build.ArtifactStagingDirectory)
+
+  # ─────────────────────────────────────────────────────────────────
+  # STAGE 5: Deploy to Staging
+  # ─────────────────────────────────────────────────────────────────
+  - stage: DeployStaging
+    displayName: "Deploy to Staging"
+    dependsOn: Docker
+    variables:
+      imageTag: $[ stageDependencies.Docker.BuildAndPushImages.outputs['saveTag.imageTag'] ]
+    jobs:
+      - deployment: DeployToStaging
+        displayName: "Helm deploy to staging namespace"
+        environment: "erp-staging"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: image-tag
+
+                - bash: |
+                    TAG=$(cat $(Pipeline.Workspace)/image-tag/image-tag.txt)
+                    echo "##vso[task.setvariable variable=resolvedImageTag]$TAG"
+                  displayName: "Resolve image tag"
+
+                - task: HelmDeploy@1
+                  displayName: "Helm upgrade — staging"
+                  inputs:
+                    connectionType: "Kubernetes Service Connection"
+                    kubernetesServiceConnection: "erp-aks-staging"
+                    namespace: $(stagingNamespace)
+                    command: upgrade
+                    chartType: FilePath
+                    chartPath: "deploy/helm/erp-backend"
+                    releaseName: "$(helmReleaseName)-staging"
+                    valueFile: "deploy/helm/erp-backend/values.staging.yaml"
+                    overrideValues: |
+                      image.tag=$(resolvedImageTag)
+                      secrets.connectionStrings.write=$(STAGING_DB_WRITE)
+                      secrets.connectionStrings.read=$(STAGING_DB_READ)
+                      secrets.jwt.key=$(STAGING_JWT_KEY)
+                      secrets.redis.connectionString=$(STAGING_REDIS)
+                      secrets.encryption.key=$(STAGING_ENCRYPTION_KEY)
+                    install: true
+                    waitForExecution: true
+                    arguments: "--timeout 5m"
+
+  # ─────────────────────────────────────────────────────────────────
+  # STAGE 6: Smoke Tests
+  # ─────────────────────────────────────────────────────────────────
+  - stage: SmokeTests
+    displayName: "Smoke Tests"
+    dependsOn: DeployStaging
+    jobs:
+      - job: SmokeTest
+        displayName: "Smoke test staging deployment"
+        steps:
+          - bash: |
+              chmod +x deploy/scripts/smoke-test.sh
+              STAGING_URL="https://api-staging.erpplatform.com" ./deploy/scripts/smoke-test.sh
+            displayName: "Run smoke tests"
+            env:
+              STAGING_TENANT_SLUG: "system"
+
+  # ─────────────────────────────────────────────────────────────────
+  # STAGE 7: OWASP ZAP Security Scan
+  # ─────────────────────────────────────────────────────────────────
+  - stage: SecurityScan
+    displayName: "OWASP ZAP Security Scan"
+    dependsOn: SmokeTests
+    jobs:
+      - job: ZapScan
+        displayName: "OWASP ZAP baseline scan against staging"
+        services:
+          docker: {}
+        steps:
+          - bash: |
+              docker pull ghcr.io/zaproxy/zaproxy:stable
+              mkdir -p $(Build.ArtifactStagingDirectory)/zap-reports
+
+              # Copy ZAP config into the report dir so the container can read it via the volume mount
+              cp deploy/zap/zap-baseline.conf $(Build.ArtifactStagingDirectory)/zap-reports/zap-baseline.conf
+
+              docker run --rm \
+                -v $(Build.ArtifactStagingDirectory)/zap-reports:/zap/wrk/:rw \
+                ghcr.io/zaproxy/zaproxy:stable \
+                zap-baseline.py \
+                  -t https://api-staging.erpplatform.com \
+                  -c /zap/wrk/zap-baseline.conf \
+                  -r zap-report.html \
+                  -J zap-report.json \
+                  -x zap-report.xml \
+                  -I
+              echo "ZAP scan complete"
+            displayName: "Run OWASP ZAP baseline scan"
+            continueOnError: true
+
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish ZAP report"
+            condition: always()
+            inputs:
+              pathToPublish: "$(Build.ArtifactStagingDirectory)/zap-reports"
+              artifactName: "zap-security-report"
+
+          - bash: |
+              # Fail pipeline if HIGH severity issues found
+              HIGH_COUNT=$(python3 -c "
+              import json, sys
+              with open('$(Build.ArtifactStagingDirectory)/zap-reports/zap-report.json') as f:
+                  data = json.load(f)
+              highs = sum(1 for site in data.get('site', []) for alert in site.get('alerts', []) if alert.get('riskcode') == '3')
+              print(highs)
+              ")
+              echo "High severity ZAP findings: $HIGH_COUNT"
+              if [ "$HIGH_COUNT" -gt "0" ]; then
+                echo "##vso[task.logissue type=error]$HIGH_COUNT HIGH severity security findings. Review ZAP report."
+                exit 1
+              fi
+            displayName: "Check for HIGH severity findings"
+
+  # ─────────────────────────────────────────────────────────────────
+  # STAGE 8: Approval Gate
+  # ─────────────────────────────────────────────────────────────────
+  - stage: ApprovalGate
+    displayName: "Manual Approval Gate"
+    dependsOn: SecurityScan
+    jobs:
+      - job: WaitForApproval
+        displayName: "Awaiting production deployment approval"
+        pool: server  # Runs on Azure DevOps server, not an agent — just waits
+        timeoutInMinutes: 1440  # 24 hours
+        steps:
+          - task: ManualValidation@0
+            displayName: "Approve production deployment"
+            inputs:
+              notifyUsers: "$(PROD_APPROVERS)"
+              instructions: |
+                Review smoke test and ZAP scan results before approving production deployment.
+                Staging URL: https://api-staging.erpplatform.com/swagger
+                ZAP Report: Available in pipeline artifacts.
+              onTimeout: reject
+
+  # ─────────────────────────────────────────────────────────────────
+  # STAGE 9: Deploy to Production
+  # ─────────────────────────────────────────────────────────────────
+  - stage: DeployProduction
+    displayName: "Deploy to Production"
+    dependsOn: ApprovalGate
+    jobs:
+      - deployment: DeployToProduction
+        displayName: "Helm deploy to production"
+        environment: "erp-production"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: image-tag
+
+                - bash: |
+                    TAG=$(cat $(Pipeline.Workspace)/image-tag/image-tag.txt)
+                    echo "##vso[task.setvariable variable=resolvedImageTag]$TAG"
+                  displayName: "Resolve image tag"
+
+                - task: HelmDeploy@1
+                  displayName: "Helm upgrade — production"
+                  inputs:
+                    connectionType: "Kubernetes Service Connection"
+                    kubernetesServiceConnection: "erp-aks-production"
+                    namespace: $(productionNamespace)
+                    command: upgrade
+                    chartType: FilePath
+                    chartPath: "deploy/helm/erp-backend"
+                    releaseName: $(helmReleaseName)
+                    valueFile: "deploy/helm/erp-backend/values.production.yaml"
+                    overrideValues: |
+                      image.tag=$(resolvedImageTag)
+                      secrets.connectionStrings.write=$(PROD_DB_WRITE)
+                      secrets.connectionStrings.read=$(PROD_DB_READ)
+                      secrets.jwt.key=$(PROD_JWT_KEY)
+                      secrets.redis.connectionString=$(PROD_REDIS)
+                      secrets.encryption.key=$(PROD_ENCRYPTION_KEY)
+                      secrets.paymentGateway.razorpayKeyId=$(PROD_RAZORPAY_KEY_ID)
+                      secrets.paymentGateway.razorpayWebhookSecret=$(PROD_RAZORPAY_WEBHOOK_SECRET)
+                      secrets.paymentGateway.secret=$(PROD_PAYMENT_SECRET)
+                    install: true
+                    waitForExecution: true
+                    arguments: "--timeout 10m"
+
+  # ─────────────────────────────────────────────────────────────────
+  # STAGE 10: Post-Deployment Verification
+  # ─────────────────────────────────────────────────────────────────
+  - stage: VerifyProduction
+    displayName: "Verify Production"
+    dependsOn: DeployProduction
+    jobs:
+      - job: Verify
+        displayName: "Post-deployment health verification"
+        steps:
+          - bash: |
+              chmod +x deploy/scripts/verify-deployment.sh
+              PROD_URL="https://api.erpplatform.com" ./deploy/scripts/verify-deployment.sh
+            displayName: "Run production verification"

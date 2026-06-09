@@ -1,0 +1,100 @@
+datadir="/var/lib/proxysql"
+
+admin_variables=
+{
+    admin_credentials="admin:admin_pass"
+    mysql_ifaces="0.0.0.0:6032"
+    refresh_interval=2000
+    web_enabled=true
+    web_port=6080
+}
+
+mysql_variables=
+{
+    threads=8
+    max_connections=2048
+    default_query_delay=0
+    default_query_timeout=36000000
+    have_compress=true
+    poll_timeout=2000
+    interfaces="0.0.0.0:6033"
+    default_schema="information_schema"
+    stacksize=1048576
+    server_version="8.0.0"
+    connect_timeout_server=10000
+    monitor_username="monitor"
+    monitor_password="monitor_pass"
+    monitor_history=60000
+    monitor_connect_interval=200000
+    monitor_ping_interval=200000
+    ping_interval_server_msec=120000
+    ping_timeout_server=500
+    commands_stats=true
+    sessions_sort=true
+    connect_retries_on_failure=10
+}
+
+mysql_servers=
+(
+    {
+        address="mysql-primary"
+        port=3306
+        hostgroup=0           # Write hostgroup
+        status="ONLINE"
+        weight=1
+        compression=0
+        max_connections=200
+        max_replication_lag=0
+    },
+    {
+        address="mysql-replica"
+        port=3306
+        hostgroup=1           # Read hostgroup
+        status="ONLINE"
+        weight=1
+        compression=0
+        max_connections=400   # More connections on replica — reads are the majority
+        max_replication_lag=10
+    },
+    {
+        address="mysql-primary"
+        port=3306
+        hostgroup=1           # Primary also in read hostgroup as fallback
+        status="ONLINE"
+        weight=0              # Zero weight — only used if replica is down
+        compression=0
+        max_connections=50
+        max_replication_lag=0
+    }
+)
+
+mysql_users=
+(
+    {
+        username="erp_app"
+        password="erp_app_pass"
+        default_hostgroup=0
+        transaction_isolation_level=READ_COMMITTED
+        max_connections=1000
+        active=1
+    }
+)
+
+# Route SELECT statements to read hostgroup (1) unless in a transaction
+mysql_query_rules=
+(
+    {
+        rule_id=1
+        active=1
+        match_pattern="^SELECT .* FOR UPDATE"
+        destination_hostgroup=0    # Locking reads must go to primary
+        apply=1
+    },
+    {
+        rule_id=2
+        active=1
+        match_pattern="^SELECT"
+        destination_hostgroup=1    # All other SELECTs → replica
+        apply=1
+    }
+)

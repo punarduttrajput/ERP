@@ -1,0 +1,30 @@
+replicaCount: 1
+
+image:
+  tag: "staging"
+  pullPolicy: Always
+
+autoscaling:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+ingress:
+  hosts:
+    - host: api-staging.erpplatform.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: erp-api-staging-tls
+      hosts:
+        - api-staging.erpplatform.com
+
+env:
+  ASPNETCORE_ENVIRONMENT: Staging

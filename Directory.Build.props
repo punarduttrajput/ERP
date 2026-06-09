@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- Centralise all package versions here — change once, applies everywhere -->
+    <EfCoreVersion>8.0.13</EfCoreVersion>
+    <AspNetCoreVersion>8.0.13</AspNetCoreVersion>
+    <PomeloVersion>8.0.3</PomeloVersion>
+    <MediatRVersion>12.4.1</MediatRVersion>
+    <FluentValidationVersion>11.11.0</FluentValidationVersion>
+    <AutoMapperVersion>13.0.1</AutoMapperVersion>
+    <RedisVersion>2.8.16</RedisVersion>
+    <BCryptVersion>4.0.3</BCryptVersion>
+    <SerilogVersion>8.0.3</SerilogVersion>
+    <HangfireVersion>1.8.17</HangfireVersion>
+    <SwashbuckleVersion>6.9.0</SwashbuckleVersion>
+    <MySqlConnectorVersion>2.3.7</MySqlConnectorVersion>
+  </PropertyGroup>
+</Project>

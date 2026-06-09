@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ERP.Shared\ERP.Shared.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Auth\ERP.Auth.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Users\ERP.Users.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.RBAC\ERP.RBAC.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Admissions\ERP.Admissions.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.SIS\ERP.SIS.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Academics\ERP.Academics.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Timetable\ERP.Timetable.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Attendance\ERP.Attendance.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Exams\ERP.Exams.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.LMS\ERP.LMS.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Fees\ERP.Fees.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Finance\ERP.Finance.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.HRMS\ERP.HRMS.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Library\ERP.Library.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Hostel\ERP.Hostel.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Transport\ERP.Transport.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Placement\ERP.Placement.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Accreditation\ERP.Accreditation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.NAAC\ERP.NAAC.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.OBE\ERP.OBE.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.NIRF\ERP.NIRF.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Compliance\ERP.Compliance.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.ABC\ERP.ABC.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Research\ERP.Research.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Alumni\ERP.Alumni.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Chatbot\ERP.Chatbot.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Analytics\ERP.Analytics.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.MobileApi\ERP.MobileApi.csproj" />
+    <ProjectReference Include="..\..\src\Modules\ERP.Reporting\ERP.Reporting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="FluentAssertions" Version="6.12.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EfCoreVersion)" />
+  </ItemGroup>
+</Project>

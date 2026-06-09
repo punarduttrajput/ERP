@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  tag: "staging"
+  pullPolicy: Always
+
+autoscaling:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi
+
+ingress:
+  hosts:
+    - host: app-staging.erpplatform.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: erp-frontend-staging-tls
+      hosts:
+        - app-staging.erpplatform.com
