@@ -173,11 +173,15 @@ try
     var writeConnStr = builder.Configuration.GetConnectionString("Write")!;
         builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
     {
-        options.UseMySql(writeConnStr, ServerVersion.AutoDetect(writeConnStr),
+        // Use a hardcoded version instead of AutoDetect to avoid a synchronous
+        // TCP connection to MySQL at DI registration time — AutoDetect crashes
+        // if the database is temporarily unreachable during startup.
+        var mysqlVersion = new MySqlServerVersion(new Version(8, 0, 0));
+        options.UseMySql(writeConnStr, mysqlVersion,
             mysqlOptions =>
             {
-                mysqlOptions.EnableRetryOnFailure(maxRetryCount: 3, maxRetryDelay: TimeSpan.FromSeconds(5), errorNumbersToAdd: null);
-                mysqlOptions.CommandTimeout(30);
+                mysqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorNumbersToAdd: null);
+                mysqlOptions.CommandTimeout(60);
             });
     });
 

@@ -38,10 +38,22 @@ public sealed class LoginHandler : IRequestHandler<LoginCommand, Result<LoginRes
 
     public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var email = request.Email.Trim().ToLowerInvariant();
+        // Fail fast if tenant wasn't resolved by middleware — gives a clearer error
+        // than "Invalid credentials." and avoids querying with Guid.Empty filter.
+        if (!_currentTenant.TenantId.HasValue)
+            return Result<LoginResponse>.Failure("Tenant not found. Verify the X-Tenant-Slug header.");
 
+        var email = request.Email.Trim().ToLowerInvariant();
+        var tenantId = _currentTenant.TenantId.Value;
+
+        // IgnoreQueryFilters bypasses the global EF tenant filter (which depends on
+        // AsyncLocal state) and uses an explicit TenantId predicate instead — more
+        // reliable when the cached model filter has a stale captured reference.
         var user = await _db.Users
-            .FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted, cancellationToken);
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(u => u.TenantId == tenantId
+                                   && u.Email == email
+                                   && !u.IsDeleted, cancellationToken);
 
         if (user is null)
             return Result<LoginResponse>.Failure("Invalid credentials.");

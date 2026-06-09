@@ -28,6 +28,9 @@ public sealed class TenantResolutionMiddleware
             {
                 await TryResolveFromDbAsync(slug, db, redis, currentTenant);
             }
+
+            if (!currentTenant.IsResolved)
+                _logger.LogWarning("Tenant slug '{Slug}' could not be resolved from Redis or DB.", slug);
         }
 
         await _next(context);
