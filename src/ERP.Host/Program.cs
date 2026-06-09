@@ -411,10 +411,20 @@ try
     app.UseMiddleware<GlobalExceptionMiddleware>();
     app.UseMiddleware<CorrelationIdMiddleware>();
 
-    if (app.Environment.IsDevelopment())
+    // Enable Swagger in all non-production environments AND when explicitly enabled via config.
+    // Set EnableSwagger=true in Render environment variables to expose docs on production.
+    var enableSwagger = app.Environment.IsDevelopment()
+                     || string.Equals(builder.Configuration["EnableSwagger"], "true",
+                            StringComparison.OrdinalIgnoreCase);
+
+    if (enableSwagger)
     {
         app.UseSwagger();
-        app.UseSwaggerUI();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "ERP Platform API v1");
+            c.RoutePrefix = "swagger";
+        });
     }
 
     app.UseSerilogRequestLogging(opts =>
