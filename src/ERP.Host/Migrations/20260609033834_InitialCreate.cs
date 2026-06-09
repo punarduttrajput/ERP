@@ -110,7 +110,7 @@ namespace ERP.Host.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     AcademicYear = table.Column<int>(type: "int", nullable: false),
                     State = table.Column<int>(type: "int", nullable: false),
-                    RejectionReason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    RejectionReason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     MeritScore = table.Column<decimal>(type: "decimal(8,4)", precision: 8, scale: 4, nullable: true),
                     MeritRank = table.Column<int>(type: "int", nullable: true),
@@ -229,7 +229,7 @@ namespace ERP.Host.Migrations
                     EventType = table.Column<int>(type: "int", nullable: false),
                     EventDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EventTime = table.Column<TimeOnly>(type: "time(6)", nullable: true),
-                    VenueOrLink = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    VenueOrLink = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     MaxParticipants = table.Column<int>(type: "int", nullable: true),
                     RegisteredCount = table.Column<int>(type: "int", nullable: false),
@@ -274,7 +274,7 @@ namespace ERP.Host.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CurrentCountry = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, defaultValue: "India")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    LinkedInUrl = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    LinkedInUrl = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     IsDirectoryVisible = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsVerified = table.Column<bool>(type: "tinyint(1)", nullable: false),
@@ -687,7 +687,7 @@ namespace ERP.Host.Migrations
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     ComplianceItemId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    Message = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    Message = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     SentAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     RecipientUserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
@@ -783,7 +783,7 @@ namespace ERP.Host.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     ApprovedBy = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     ApprovedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RejectionReason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    RejectionReason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     AbcRegistryReference = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -828,7 +828,7 @@ namespace ERP.Host.Migrations
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    DeviceToken = table.Column<string>(type: "longtext", maxLength: 512, nullable: false)
+                    DeviceToken = table.Column<string>(type: "varchar(512)", maxLength: 512, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Platform = table.Column<int>(type: "int", nullable: false),
                     AppVersion = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
@@ -1020,7 +1020,7 @@ namespace ERP.Host.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     RecordId = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    RecordLabel = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    RecordLabel = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     NaacCriterion = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -1296,7 +1296,7 @@ namespace ERP.Host.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    Title = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    Title = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     FundingAgency = table.Column<string>(type: "varchar(300)", maxLength: 300, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -1428,7 +1428,7 @@ namespace ERP.Host.Migrations
                     EntryNumber = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     EntryDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    Description = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Reference = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -1465,7 +1465,7 @@ namespace ERP.Host.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     ApprovedBy = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     ApprovedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RejectionReason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    RejectionReason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -1531,9 +1531,9 @@ namespace ERP.Host.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     ISBN = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Title = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    Title = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Authors = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    Authors = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Publisher = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -1675,7 +1675,7 @@ namespace ERP.Host.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    Title = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    Title = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Inventors = table.Column<string>(type: "longtext", maxLength: 1000, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -1733,7 +1733,7 @@ namespace ERP.Host.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Description = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Module = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -1829,7 +1829,7 @@ namespace ERP.Host.Migrations
                     Title = table.Column<string>(type: "longtext", maxLength: 1000, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PublicationType = table.Column<int>(type: "int", nullable: false),
-                    VenueName = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    VenueName = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Isbn = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -1871,7 +1871,7 @@ namespace ERP.Host.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     SentAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     ReadAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    FailureReason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    FailureReason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Platform = table.Column<int>(type: "int", nullable: false),
                     NotificationType = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
@@ -1980,7 +1980,7 @@ namespace ERP.Host.Migrations
                     ProcessedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     GatewayRefundId = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    RejectionReason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    RejectionReason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -2006,7 +2006,7 @@ namespace ERP.Host.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     ReviewedBy = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     ReviewedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    ReviewRemark = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    ReviewRemark = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -2111,7 +2111,7 @@ namespace ERP.Host.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    Title = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    Title = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PrincipalInvestigatorId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     PrincipalInvestigatorName = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
@@ -2149,7 +2149,7 @@ namespace ERP.Host.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Description = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     IsSystemRole = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -2469,9 +2469,9 @@ namespace ERP.Host.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     BloodGroup = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    PermanentAddress = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    PermanentAddress = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    CurrentAddress = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    CurrentAddress = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Category = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -2526,7 +2526,7 @@ namespace ERP.Host.Migrations
                     OriginalEntryId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     SubstituteFacultyUserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Date = table.Column<DateOnly>(type: "date", nullable: false),
-                    Reason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    Reason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -2571,7 +2571,7 @@ namespace ERP.Host.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Slug = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    LogoUrl = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    LogoUrl = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PrimaryColor = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -2584,12 +2584,12 @@ namespace ERP.Host.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ContactPhone = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Address = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    Address = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Plan = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     SuspendedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    SuspensionReason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    SuspensionReason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -2656,7 +2656,7 @@ namespace ERP.Host.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Description = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     VehicleId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     DriverId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
@@ -2716,7 +2716,7 @@ namespace ERP.Host.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PhoneNumber = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    AvatarUrl = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    AvatarUrl = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Department = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -2788,7 +2788,7 @@ namespace ERP.Host.Migrations
                     StudentName = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     BlockId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    PurposeOfVisit = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    PurposeOfVisit = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CheckInAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CheckOutAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -2848,7 +2848,7 @@ namespace ERP.Host.Migrations
                     FileName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     IsVerified = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    VerificationRemark = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    VerificationRemark = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -2877,7 +2877,7 @@ namespace ERP.Host.Migrations
                     FromState = table.Column<int>(type: "int", nullable: false),
                     ToState = table.Column<int>(type: "int", nullable: false),
                     ActorId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    Reason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    Reason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -3032,7 +3032,7 @@ namespace ERP.Host.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     StatementId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     TransactionDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    Description = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Debit = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
                     Credit = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
@@ -3228,7 +3228,7 @@ namespace ERP.Host.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     HallTicketGenerated = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
                     IsEligible = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: true),
-                    IneligibilityReason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    IneligibilityReason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -3371,7 +3371,7 @@ namespace ERP.Host.Migrations
                     DisbursedAt = table.Column<DateOnly>(type: "date", nullable: false),
                     Reference = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Notes = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    Notes = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -3466,7 +3466,7 @@ namespace ERP.Host.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Debit = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
                     Credit = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
-                    Narration = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    Narration = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -3605,7 +3605,7 @@ namespace ERP.Host.Migrations
                     PackageLpa = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     MinCgpa = table.Column<decimal>(type: "decimal(4,2)", nullable: false, defaultValue: 0m),
                     MaxBacklogs = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    EligibleBranches = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    EligibleBranches = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     DriveDate = table.Column<DateOnly>(type: "date", nullable: true),
                     RegistrationDeadline = table.Column<DateOnly>(type: "date", nullable: true),
@@ -3638,7 +3638,7 @@ namespace ERP.Host.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     AttemptId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     QuestionId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    AnswerText = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    AnswerText = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     IsCorrect = table.Column<bool>(type: "tinyint(1)", nullable: true),
                     MarksAwarded = table.Column<decimal>(type: "decimal(8,2)", nullable: true),
@@ -3671,7 +3671,7 @@ namespace ERP.Host.Migrations
                     QuestionType = table.Column<int>(type: "int", nullable: false),
                     Options = table.Column<string>(type: "longtext", maxLength: 2000, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    CorrectAnswer = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    CorrectAnswer = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Marks = table.Column<decimal>(type: "decimal(8,2)", nullable: false),
                     OrderIndex = table.Column<int>(type: "int", nullable: false),
@@ -3712,7 +3712,7 @@ namespace ERP.Host.Migrations
                     InterviewNotes = table.Column<string>(type: "longtext", maxLength: 2000, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     OfferSalary = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    RejectionReason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    RejectionReason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -4028,7 +4028,7 @@ namespace ERP.Host.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     GatewayPaymentId = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    GatewaySignature = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    GatewaySignature = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
@@ -4037,7 +4037,7 @@ namespace ERP.Host.Migrations
                     PaidAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     ReceiptNumber = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    FailureReason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    FailureReason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -4133,7 +4133,7 @@ namespace ERP.Host.Migrations
                     SubjectId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Code = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Description = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -4329,7 +4329,7 @@ namespace ERP.Host.Migrations
                     ProgramId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Code = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Description = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -4357,7 +4357,7 @@ namespace ERP.Host.Migrations
                     ProgramId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Code = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Description = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -4415,7 +4415,7 @@ namespace ERP.Host.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     CopyId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     BookId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    BookTitle = table.Column<string>(type: "longtext", maxLength: 500, nullable: false)
+                    BookTitle = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     MemberId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     MemberType = table.Column<int>(type: "int", nullable: false),
@@ -4494,7 +4494,7 @@ namespace ERP.Host.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     CollectedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     WaivedBy = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    WaivedReason = table.Column<string>(type: "longtext", maxLength: 500, nullable: true)
+                    WaivedReason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -6176,4 +6176,5 @@ namespace ERP.Host.Migrations
         }
     }
 }
+
 
