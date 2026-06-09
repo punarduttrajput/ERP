@@ -23,14 +23,21 @@ public sealed class TenantResolutionMiddleware
 
         if (!string.IsNullOrWhiteSpace(slug))
         {
-            var resolved = await TryResolveFromRedisAsync(slug, redis, currentTenant);
-            if (!resolved)
-            {
-                await TryResolveFromDbAsync(slug, db, redis, currentTenant);
-            }
+            // Resolve tenant info from Redis or DB — returns null if not found.
+            // SetTenant MUST be called here in InvokeAsync (parent context) so the
+            // AsyncLocal value flows forward to _next(context). AsyncLocal changes
+            // made inside awaited child methods do NOT propagate back to the parent.
+            var tenantInfo = await ResolveAsync(slug, redis, db);
 
-            if (!currentTenant.IsResolved)
-                _logger.LogWarning("Tenant slug '{Slug}' could not be resolved from Redis or DB.", slug);
+            if (tenantInfo.HasValue)
+            {
+                currentTenant.SetTenant(tenantInfo.Value.TenantId, tenantInfo.Value.Slug);
+                _logger.LogDebug("Tenant resolved: {Slug} → {TenantId}", slug, tenantInfo.Value.TenantId);
+            }
+            else
+            {
+                _logger.LogWarning("Tenant not found for slug: {Slug}", slug);
+            }
         }
 
         await _next(context);
@@ -38,12 +45,10 @@ public sealed class TenantResolutionMiddleware
 
     private static string? ExtractSlug(HttpContext context)
     {
-        // Try X-Tenant-Slug header first
         if (context.Request.Headers.TryGetValue("X-Tenant-Slug", out var headerSlug))
             return headerSlug.ToString().ToLowerInvariant();
 
-        // Try subdomain: tenant.example.com
-        var host = context.Request.Host.Host;
+        var host  = context.Request.Host.Host;
         var parts = host.Split('.');
         if (parts.Length >= 3)
             return parts[0].ToLowerInvariant();
@@ -51,59 +56,58 @@ public sealed class TenantResolutionMiddleware
         return null;
     }
 
-    private async Task<bool> TryResolveFromRedisAsync(string slug, IConnectionMultiplexer redis, ICurrentTenant currentTenant)
+    private async Task<(Guid TenantId, string Slug)?> ResolveAsync(
+        string slug, IConnectionMultiplexer redis, AppDbContext db)
+    {
+        // Try Redis first
+        var fromRedis = await TryRedisAsync(slug, redis);
+        if (fromRedis.HasValue) return fromRedis;
+
+        // Fall back to DB
+        return await TryDbAsync(slug, db);
+    }
+
+    private async Task<(Guid TenantId, string Slug)?> TryRedisAsync(
+        string slug, IConnectionMultiplexer redis)
     {
         try
         {
-            var db = redis.GetDatabase();
+            var redisDb  = redis.GetDatabase();
             var cacheKey = $"tenant:slug:{slug}";
-            var cached = await db.StringGetAsync(cacheKey);
+            var cached   = await redisDb.StringGetAsync(cacheKey);
 
-            if (!cached.HasValue)
-                return false;
+            if (!cached.HasValue) return null;
 
-            var tenantInfo = JsonSerializer.Deserialize<CachedTenantInfo>(cached!);
-            if (tenantInfo is null)
-                return false;
+            var info = JsonSerializer.Deserialize<CachedTenantInfo>(cached!);
+            if (info is null) return null;
 
-            currentTenant.SetTenant(tenantInfo.TenantId, tenantInfo.Slug);
-            return true;
+            return (info.TenantId, info.Slug);
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Redis error during tenant resolution for slug: {Slug}", slug);
-            return false;
+            return null;
         }
     }
 
-    private async Task TryResolveFromDbAsync(string slug, AppDbContext db, IConnectionMultiplexer redis, ICurrentTenant currentTenant)
+    private async Task<(Guid TenantId, string Slug)?> TryDbAsync(
+        string slug, AppDbContext db)
     {
         try
         {
-            // Resolve by slug only — status is checked at the user/endpoint level.
-            // Filtering by Active here caused enum-int comparison issues on some MySQL configs.
             var tenant = await db.Set<ERP.Tenants.Domain.Tenant>()
                 .AsNoTracking()
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(t => t.Slug == slug && !t.IsDeleted);
 
-            if (tenant is null)
-            {
-                _logger.LogWarning("Tenant not found for slug: {Slug}", slug);
-                return;
-            }
+            if (tenant is null) return null;
 
-            currentTenant.SetTenant(tenant.Id, tenant.Slug);
-
-            // Cache for 5 minutes
-            var redisDb = redis.GetDatabase();
-            var cacheKey = $"tenant:slug:{slug}";
-            var info = new CachedTenantInfo(tenant.Id, tenant.Slug);
-            await redisDb.StringSetAsync(cacheKey, JsonSerializer.Serialize(info), TimeSpan.FromMinutes(5));
+            return (tenant.Id, tenant.Slug);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Database error during tenant resolution for slug: {Slug}", slug);
+            return null;
         }
     }
 
