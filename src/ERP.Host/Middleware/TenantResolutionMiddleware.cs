@@ -80,11 +80,12 @@ public sealed class TenantResolutionMiddleware
     {
         try
         {
+            // Resolve by slug only — status is checked at the user/endpoint level.
+            // Filtering by Active here caused enum-int comparison issues on some MySQL configs.
             var tenant = await db.Set<ERP.Tenants.Domain.Tenant>()
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(t => t.Slug == slug && !t.IsDeleted
-                    && t.Status == ERP.Tenants.Domain.TenantStatus.Active);
+                .FirstOrDefaultAsync(t => t.Slug == slug && !t.IsDeleted);
 
             if (tenant is null)
             {
